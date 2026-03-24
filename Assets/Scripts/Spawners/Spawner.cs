@@ -30,12 +30,6 @@ namespace Spawners
             );
         }
 
-        private void OnDestroy()
-        {
-            StopSpawning();
-            _pool?.Clear();
-        }
-
         public void ToggleSpawning()
         {
             _isSpawning = !_isSpawning;
