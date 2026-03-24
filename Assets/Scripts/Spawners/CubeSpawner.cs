@@ -8,11 +8,11 @@ public class CubeSpawner : Spawner<Cube>
     [SerializeField] private float _maxCubeLifetime = 5f;
     [SerializeField] private int _ySpawnOffset = 10;
 
-    protected override void ActionOnGet(Cube cube)
+    protected override void Activate(Cube cube)
     {
         cube.transform.position = GetRandomSpawnPoint();
 
-        base.ActionOnGet(cube);
+        base.Activate(cube);
         float lifetime = Random.Range(_minCubeLifetime, _maxCubeLifetime);
         cube.Init(lifetime);
 

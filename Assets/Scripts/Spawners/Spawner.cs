@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Pool;
 using System.Collections;
@@ -11,39 +10,29 @@ namespace Spawners
         [SerializeField] private float _repeatRate = 1f;
         [SerializeField] private int _poolCapacity = 20;
         [SerializeField] private int _poolMaxSize = 20;
-        private bool _isSpawning = false;
 
+        private bool _isSpawning = true;
         protected ObjectPool<T> _pool;
-
         private Coroutine _spawnCoroutine;
 
         private void Awake()
         {
             _pool = new ObjectPool<T>(
                 createFunc: () => Instantiate(_prefab),
-                actionOnGet: ActionOnGet,
-                actionOnRelease: ActionOnRelease,
+                actionOnGet: Activate,
+                actionOnRelease: Deactivate,
                 actionOnDestroy: (obj) => Destroy(obj.gameObject),
                 collectionCheck: true,
                 defaultCapacity: _poolCapacity,
                 maxSize: _poolMaxSize
             );
+
+            StartSpawning();
         }
 
-        public void ToggleSpawning()
+        private void OnDisable()
         {
-            _isSpawning = !_isSpawning;
-
-            if (_isSpawning)
-                StartSpawning();
-            else
-                StopSpawning();
-        }
-
-        private void StartSpawning()
-        {
-            if (_spawnCoroutine == null)
-                _spawnCoroutine = StartCoroutine(SpawnRoutine());
+            StopSpawning();
         }
 
         protected T GetFromPool()
@@ -55,11 +44,27 @@ namespace Spawners
         {
             _pool.Release(obj);
         }
+        protected virtual void Deactivate(T obj)
+        {
+            obj.gameObject.SetActive(false);
+        }
+
+        protected virtual void Activate(T obj)
+        {
+            obj.gameObject.SetActive(true);
+        }
+
+        private void StartSpawning()
+        {
+            if (_spawnCoroutine == null)
+                _spawnCoroutine = StartCoroutine(SpawnRoutine());
+        }
 
         private void StopSpawning()
         {
             if (_spawnCoroutine != null)
             {
+                _isSpawning = false;
                 StopCoroutine(_spawnCoroutine);
                 _spawnCoroutine = null;
             }
@@ -74,16 +79,6 @@ namespace Spawners
                 GetFromPool();
                 yield return wait;
             }
-        }
-
-        protected virtual void ActionOnRelease(T obj)
-        {
-            obj.gameObject.SetActive(false);
-        }
-
-        protected virtual void ActionOnGet(T obj)
-        {
-            obj.gameObject.SetActive(true);
         }
     }
 }

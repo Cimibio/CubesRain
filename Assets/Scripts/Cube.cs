@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(MeshRenderer))]
 public class Cube : MonoBehaviour
 {
     private MeshRenderer _renderer;
@@ -8,18 +10,11 @@ public class Cube : MonoBehaviour
     private float _lifetime;
 
     public event Action<Cube> Expired;
+    private Coroutine _expirationCoroutine;
 
     private void Awake()
     {
         _renderer = GetComponent<MeshRenderer>();
-    }
-
-    public void Init(float lifetime)
-    {
-        CancelInvoke(nameof(NotifyExpired));
-        _lifetime = lifetime;
-        _isTouched = false;
-        _renderer.material.color = Color.white;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -30,7 +25,20 @@ public class Cube : MonoBehaviour
         _isTouched = true;
         SetRandomColor();
 
-        Invoke(nameof(NotifyExpired), _lifetime);
+        _expirationCoroutine = StartCoroutine(WaitAndExpire(_lifetime));
+    }
+
+    public void Init(float lifetime)
+    {
+        if (_expirationCoroutine != null)
+        {
+            StopCoroutine(_expirationCoroutine);
+            _expirationCoroutine = null;
+        }
+
+        _lifetime = lifetime;
+        _isTouched = false;
+        _renderer.material.color = Color.white;
     }
 
     private void NotifyExpired()
@@ -42,5 +50,10 @@ public class Cube : MonoBehaviour
     {
         _renderer.material.color = UnityEngine.Random.ColorHSV();
     }
-}
 
+    private IEnumerator WaitAndExpire(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        NotifyExpired();
+    }
+}
