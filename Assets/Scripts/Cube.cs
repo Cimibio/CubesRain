@@ -4,7 +4,6 @@ using UnityEngine;
 public class Cube : MonoBehaviour
 {
     private MeshRenderer _renderer;
-
     private bool _isTouched = false;
     private float _lifetime;
 
@@ -17,6 +16,7 @@ public class Cube : MonoBehaviour
 
     public void Init(float lifetime)
     {
+        CancelInvoke(nameof(NotifyExpired));
         _lifetime = lifetime;
         _isTouched = false;
         _renderer.material.color = Color.white;

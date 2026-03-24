@@ -8,11 +8,11 @@ namespace Spawners
     public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     {
         [SerializeField] private T _prefab;
-        [SerializeField] private GameObject _startPoint;
+        //[SerializeField] private GameObject _startPoint;
         [SerializeField] private float _repeatRate = 1f;
         [SerializeField] private int _poolCapacity = 20;
         [SerializeField] private int _poolMaxSize = 20;
-        [SerializeField] private int _ySpawnOffset = 10;
+        //[SerializeField] private int _ySpawnOffset = 10;
 
         protected ObjectPool<T> _pool;
 
@@ -51,6 +51,7 @@ namespace Spawners
         private IEnumerator SpawnRoutine()
         {
             var wait = new WaitForSeconds(_repeatRate);
+
             while (true)
             {
                 GetFromPool();
@@ -62,6 +63,7 @@ namespace Spawners
         {
             T @object = _pool.Get();
             Spawned?.Invoke(@object);
+
             return @object;
         }
 
@@ -77,22 +79,22 @@ namespace Spawners
 
         protected virtual void ActionOnGet(T obj)
         {
-            obj.transform.position = GetRandomSpawnPoint();
+            //obj.transform.position = GetRandomSpawnPoint();
             obj.gameObject.SetActive(true);
         }
 
-        private Vector3 GetRandomSpawnPoint()
-        {
-            if (_startPoint == null) return transform.position;
+        //private Vector3 GetRandomSpawnPoint()
+        //{
+        //    if (_startPoint == null) return transform.position;
 
-            Collider col = _startPoint.GetComponent<Collider>();
-            Bounds bounds = col.bounds;
+        //    Collider col = _startPoint.GetComponent<Collider>();
+        //    Bounds bounds = col.bounds;
 
-            float y = bounds.max.y + _ySpawnOffset;
-            float x = UnityEngine.Random.Range(bounds.min.x, bounds.max.x);
-            float z = UnityEngine.Random.Range(bounds.min.z, bounds.max.z);
+        //    float y = bounds.max.y + _ySpawnOffset;
+        //    float x = UnityEngine.Random.Range(bounds.min.x, bounds.max.x);
+        //    float z = UnityEngine.Random.Range(bounds.min.z, bounds.max.z);
 
-            return new Vector3(x, y, z);
-        }
+        //    return new Vector3(x, y, z);
+        //}
     }
 }
