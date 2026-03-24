@@ -7,8 +7,6 @@ namespace Spawners
         [SerializeField] private Spawner<T> _spawner;
         [SerializeField] private MouseReader _mouseReader;
 
-        private bool _isActive = false;
-
         private void OnEnable()
         {
             _mouseReader.Clicked += OnMouseClicked;
@@ -21,14 +19,7 @@ namespace Spawners
 
         private void OnMouseClicked()
         {
-            _isActive = !_isActive;
-
-            if (_isActive)
-                _spawner.StartSpawning();
-            else
-                _spawner.StopSpawning();
-
-            Debug.Log($"Спавнер {(_isActive ? "запущен" : "остановлен")}");
+            _spawner.ToggleSpawning();
         }
     }
 }

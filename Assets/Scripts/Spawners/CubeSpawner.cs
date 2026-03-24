@@ -10,10 +10,10 @@ public class CubeSpawner : Spawner<Cube>
 
     protected override void ActionOnGet(Cube cube)
     {
-        base.ActionOnGet(cube);
-
         cube.transform.position = GetRandomSpawnPoint();
-        float lifetime = Random.Range(_minCubeLifetime, _maxCubeLifetime + 1);
+
+        base.ActionOnGet(cube);
+        float lifetime = Random.Range(_minCubeLifetime, _maxCubeLifetime);
         cube.Init(lifetime);
 
         cube.Expired += OnItemExpired;
@@ -33,8 +33,8 @@ public class CubeSpawner : Spawner<Cube>
         Bounds bounds = col.bounds;
 
         float y = bounds.max.y + _ySpawnOffset;
-        float x = UnityEngine.Random.Range(bounds.min.x, bounds.max.x);
-        float z = UnityEngine.Random.Range(bounds.min.z, bounds.max.z);
+        float x = Random.Range(bounds.min.x, bounds.max.x);
+        float z = Random.Range(bounds.min.z, bounds.max.z);
 
         return new Vector3(x, y, z);
     }
