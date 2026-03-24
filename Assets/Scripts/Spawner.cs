@@ -1,18 +1,97 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.Pool;
+using System.Collections;
 
-public class Spawner : MonoBehaviour
+namespace Spawners
 {
-    // Start is called before the first frame update
-    void Start()
+    public class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     {
-        
-    }
+        [SerializeField] private T _prefab;
+        [SerializeField] private GameObject _startPoint;
+        [SerializeField] private float _repeatRate = 1f;
+        [SerializeField] private int _poolCapacity = 20;
+        [SerializeField] private int _poolMaxSize = 20;
+        [SerializeField] private int _minLifetime = 2;
+        [SerializeField] private int _maxLifetime = 5;
+        [SerializeField] private int _ySpawnOffset = 10;
 
-    // Update is called once per frame
-    void Update()
-    {
+        private ObjectPool<T> _pool;
+
+        private Coroutine _spawnCoroutine;
+
+        public event Action<T> Spawned;
+
+        private void Awake()
+        {
+            _pool = new ObjectPool<T>(
+                createFunc: () => Instantiate(_prefab),
+                actionOnGet: ActionOnGet,
+                actionOnRelease: (obj) => obj.gameObject.SetActive(false),
+                actionOnDestroy: (obj) => Destroy(obj),
+                collectionCheck: true,
+                defaultCapacity: _poolCapacity,
+                maxSize: _poolMaxSize
+                );
+        }
+
+        public void StartSpawning()
+        {
+            if (_spawnCoroutine == null)
+                _spawnCoroutine = StartCoroutine(SpawnRoutine());
+        }
+
+        public void StopSpawning()
+        {
+            if (_spawnCoroutine != null)
+            {
+                StopCoroutine(_spawnCoroutine);
+                _spawnCoroutine = null;
+            }
+        }
+
+        private IEnumerator SpawnRoutine()
+        {
+            var wait = new WaitForSeconds(_repeatRate);
+
+            while (true)
+            {
+                T @object = _pool.Get();
+                Spawned?.Invoke(@object);
+
+                yield return wait;
+            }
+        }
+
+        public T GetFromPool()
+        {
+            T @object = _pool.Get();
+            Spawned?.Invoke(@object);
+
+            return @object;
+        }
         
+        public void ReleaseToPool(T obj)
+        {
+            _pool.Release(obj);
+        }
+
+        private void ActionOnGet(T obj)
+        {
+            obj.transform.position = GetRandomSpawnPoint();
+            obj.gameObject.SetActive(true);
+        }
+
+        private Vector3 GetRandomSpawnPoint()
+        {
+            Collider col = _startPoint.GetComponent<Collider>();
+            Bounds bounds = col.bounds;
+
+            float y = bounds.max.y + _ySpawnOffset;
+            float x = UnityEngine.Random.Range(bounds.min.x, bounds.max.x);
+            float z = UnityEngine.Random.Range(bounds.min.z, bounds.max.z);
+
+            return new Vector3(x, y, z);
+        }
     }
 }
