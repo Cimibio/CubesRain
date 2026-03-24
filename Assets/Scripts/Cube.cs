@@ -22,6 +22,9 @@ public class Cube : MonoBehaviour
         if (_isTouched)
             return;
 
+        if (!collision.gameObject.TryGetComponent<Platform>(out _))
+            return;
+
         _isTouched = true;
         SetRandomColor();
 

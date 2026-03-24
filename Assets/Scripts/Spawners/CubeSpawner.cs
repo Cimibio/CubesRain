@@ -27,15 +27,20 @@ public class CubeSpawner : Spawner<Cube>
 
     private Vector3 GetRandomSpawnPoint()
     {
-        if (_startPoint == null) return transform.position;
+        if (_startPoint == null) 
+            return transform.position;
 
-        Collider collider = _startPoint.GetComponent<Collider>();
-        Bounds bounds = collider.bounds;
+        if (_startPoint.TryGetComponent(out Collider collider))
+        {
+            Bounds bounds = collider.bounds;
 
-        float y = bounds.max.y + _ySpawnOffset;
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float z = Random.Range(bounds.min.z, bounds.max.z);
+            float y = bounds.max.y + _ySpawnOffset;
+            float x = Random.Range(bounds.min.x, bounds.max.x);
+            float z = Random.Range(bounds.min.z, bounds.max.z);
 
-        return new Vector3(x, y, z);
+            return new Vector3(x, y, z);
+        }
+
+        return _startPoint.transform.position;
     }
 }
