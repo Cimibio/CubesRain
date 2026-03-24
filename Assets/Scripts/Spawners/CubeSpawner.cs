@@ -29,8 +29,8 @@ public class CubeSpawner : Spawner<Cube>
     {
         if (_startPoint == null) return transform.position;
 
-        Collider col = _startPoint.GetComponent<Collider>();
-        Bounds bounds = col.bounds;
+        Collider collider = _startPoint.GetComponent<Collider>();
+        Bounds bounds = collider.bounds;
 
         float y = bounds.max.y + _ySpawnOffset;
         float x = Random.Range(bounds.min.x, bounds.max.x);
