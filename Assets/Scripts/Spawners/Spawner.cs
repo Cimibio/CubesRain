@@ -5,18 +5,16 @@ using System.Collections;
 
 namespace Spawners
 {
-    public class Spawner<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     {
         [SerializeField] private T _prefab;
         [SerializeField] private GameObject _startPoint;
         [SerializeField] private float _repeatRate = 1f;
         [SerializeField] private int _poolCapacity = 20;
         [SerializeField] private int _poolMaxSize = 20;
-        [SerializeField] private int _minLifetime = 2;
-        [SerializeField] private int _maxLifetime = 5;
         [SerializeField] private int _ySpawnOffset = 10;
 
-        private ObjectPool<T> _pool;
+        protected ObjectPool<T> _pool;
 
         private Coroutine _spawnCoroutine;
 
@@ -27,12 +25,12 @@ namespace Spawners
             _pool = new ObjectPool<T>(
                 createFunc: () => Instantiate(_prefab),
                 actionOnGet: ActionOnGet,
-                actionOnRelease: (obj) => obj.gameObject.SetActive(false),
-                actionOnDestroy: (obj) => Destroy(obj),
+                actionOnRelease: ActionOnRelease,
+                actionOnDestroy: (obj) => Destroy(obj.gameObject),
                 collectionCheck: true,
                 defaultCapacity: _poolCapacity,
                 maxSize: _poolMaxSize
-                );
+            );
         }
 
         public void StartSpawning()
@@ -53,12 +51,9 @@ namespace Spawners
         private IEnumerator SpawnRoutine()
         {
             var wait = new WaitForSeconds(_repeatRate);
-
             while (true)
             {
-                T @object = _pool.Get();
-                Spawned?.Invoke(@object);
-
+                GetFromPool();
                 yield return wait;
             }
         }
@@ -67,16 +62,20 @@ namespace Spawners
         {
             T @object = _pool.Get();
             Spawned?.Invoke(@object);
-
             return @object;
         }
-        
+
         public void ReleaseToPool(T obj)
         {
             _pool.Release(obj);
         }
 
-        private void ActionOnGet(T obj)
+        protected virtual void ActionOnRelease(T obj)
+        {
+            obj.gameObject.SetActive(false);
+        }
+
+        protected virtual void ActionOnGet(T obj)
         {
             obj.transform.position = GetRandomSpawnPoint();
             obj.gameObject.SetActive(true);
@@ -84,6 +83,8 @@ namespace Spawners
 
         private Vector3 GetRandomSpawnPoint()
         {
+            if (_startPoint == null) return transform.position;
+
             Collider col = _startPoint.GetComponent<Collider>();
             Bounds bounds = col.bounds;
 
