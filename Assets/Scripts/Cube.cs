@@ -9,8 +9,9 @@ public class Cube : MonoBehaviour
     private Detector _detector;
     private float _lifetime;
 
-    public event Action<Cube> Expired;
     private Coroutine _lifetimerCountdownCoroutine;
+
+    public event Action<Cube> Expired;
 
     private void Awake()
     {
@@ -28,12 +29,6 @@ public class Cube : MonoBehaviour
         _detector.Collided -= ActivateLifetimer;
     }
 
-    private void ActivateLifetimer()
-    {
-        _colorChanger.SetRandomColor();
-        _lifetimerCountdownCoroutine = StartCoroutine(CountdownLifetime(_lifetime));
-    }
-
     public void Init(float lifetime)
     {
         if (_lifetimerCountdownCoroutine != null)
@@ -45,6 +40,12 @@ public class Cube : MonoBehaviour
         _lifetime = lifetime;
         _detector.Init();
         _colorChanger.SetWhiteColor();
+    }
+
+    private void ActivateLifetimer()
+    {
+        _colorChanger.SetRandomColor();
+        _lifetimerCountdownCoroutine = StartCoroutine(CountdownLifetime(_lifetime));
     }
 
     private IEnumerator CountdownLifetime(float delay)

@@ -11,13 +11,13 @@ namespace Spawners
         [SerializeField] private int _poolCapacity = 20;
         [SerializeField] private int _poolMaxSize = 20;
 
+        protected ObjectPool<T> Pool;
         private bool _isSpawning = true;
-        protected ObjectPool<T> _pool;
         private Coroutine _spawnCoroutine;
 
         private void Awake()
         {
-            _pool = new ObjectPool<T>(
+            Pool = new ObjectPool<T>(
                 createFunc: () => Instantiate(_prefab),
                 actionOnGet: Spawn,
                 actionOnRelease: Despawn,
@@ -37,12 +37,12 @@ namespace Spawners
 
         protected T GetFromPool()
         {
-            return _pool.Get();
+            return Pool.Get();
         }
 
         protected void ReleaseToPool(T obj)
         {
-            _pool.Release(obj);
+            Pool.Release(obj);
         }
         protected virtual void Despawn(T obj)
         {
