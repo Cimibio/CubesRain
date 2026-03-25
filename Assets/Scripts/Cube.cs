@@ -2,61 +2,54 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(Detector), typeof(ColorChanger))]
 public class Cube : MonoBehaviour
 {
-    private MeshRenderer _renderer;
-    private bool _isTouched = false;
+    private ColorChanger _colorChanger;
+    private Detector _detector;
     private float _lifetime;
 
     public event Action<Cube> Expired;
-    private Coroutine _expirationCoroutine;
+    private Coroutine _lifetimerCountdownCoroutine;
 
     private void Awake()
     {
-        _renderer = GetComponent<MeshRenderer>();
+        _colorChanger = GetComponent<ColorChanger>();
+        _detector = GetComponent<Detector>();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnEnable()
     {
-        if (_isTouched)
-            return;
+        _detector.Collided += ActivateLifetimer;
+    }
 
-        if (!collision.gameObject.TryGetComponent<Platform>(out _))
-            return;
+    private void OnDisable()
+    {
+        _detector.Collided -= ActivateLifetimer;
+    }
 
-        _isTouched = true;
-        SetRandomColor();
-
-        _expirationCoroutine = StartCoroutine(WaitAndExpire(_lifetime));
+    private void ActivateLifetimer()
+    {
+        _colorChanger.SetRandomColor();
+        _lifetimerCountdownCoroutine = StartCoroutine(CountdownLifetime(_lifetime));
     }
 
     public void Init(float lifetime)
     {
-        if (_expirationCoroutine != null)
+        if (_lifetimerCountdownCoroutine != null)
         {
-            StopCoroutine(_expirationCoroutine);
-            _expirationCoroutine = null;
+            StopCoroutine(_lifetimerCountdownCoroutine);
+            _lifetimerCountdownCoroutine = null;
         }
 
         _lifetime = lifetime;
-        _isTouched = false;
-        _renderer.material.color = Color.white;
+        _detector.Init();
+        _colorChanger.SetWhiteColor();
     }
 
-    private void NotifyExpired()
-    {
-        Expired?.Invoke(this);
-    }
-
-    private void SetRandomColor()
-    {
-        _renderer.material.color = UnityEngine.Random.ColorHSV();
-    }
-
-    private IEnumerator WaitAndExpire(float delay)
+    private IEnumerator CountdownLifetime(float delay)
     {
         yield return new WaitForSeconds(delay);
-        NotifyExpired();
+        Expired?.Invoke(this);
     }
 }

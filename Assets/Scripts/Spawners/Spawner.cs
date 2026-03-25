@@ -19,8 +19,8 @@ namespace Spawners
         {
             _pool = new ObjectPool<T>(
                 createFunc: () => Instantiate(_prefab),
-                actionOnGet: Activate,
-                actionOnRelease: Deactivate,
+                actionOnGet: Spawn,
+                actionOnRelease: Despawn,
                 actionOnDestroy: (obj) => Destroy(obj.gameObject),
                 collectionCheck: true,
                 defaultCapacity: _poolCapacity,
@@ -44,12 +44,12 @@ namespace Spawners
         {
             _pool.Release(obj);
         }
-        protected virtual void Deactivate(T obj)
+        protected virtual void Despawn(T obj)
         {
             obj.gameObject.SetActive(false);
         }
 
-        protected virtual void Activate(T obj)
+        protected virtual void Spawn(T obj)
         {
             obj.gameObject.SetActive(true);
         }
