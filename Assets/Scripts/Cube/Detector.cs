@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Detector : MonoBehaviour
 {
+    [SerializeField] private LayerMask _targetLayers;
+
     private bool _isTouched = false;
 
     public event Action Collided;
@@ -12,8 +14,11 @@ public class Detector : MonoBehaviour
         if (_isTouched)
             return;
 
-        if (!collision.gameObject.TryGetComponent<Platform>(out _))
-            return;
+        if (IsTargetLayer(collision.gameObject.layer))
+        {
+            _isTouched = true;
+            Collided?.Invoke();
+        }
 
         _isTouched = true;
 
@@ -23,5 +28,10 @@ public class Detector : MonoBehaviour
     public void Init()
     {
         _isTouched = false;
+    }
+
+    private bool IsTargetLayer(int layer)
+    {
+        return (_targetLayers & (1 << layer)) != 0;
     }
 }
