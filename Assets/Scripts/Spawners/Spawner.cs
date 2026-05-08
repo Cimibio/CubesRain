@@ -1,10 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
-using System.Collections;
 
 namespace Spawners
 {
-    public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class Spawner<T> : MonoBehaviour, ISpawnerStatsProvider where T : MonoBehaviour
     {
         [SerializeField] private T _prefab;
         [SerializeField] private int _poolCapacity = 20;
@@ -12,13 +12,18 @@ namespace Spawners
 
         protected ObjectPool<T> Pool;
 
+        public event Action ObjectCreated;
+        public event Action ObjectSpawned;
+        public event Action ObjectDespawned;
+        public event Action<T> ObjectDestroyed;
+
         private void Awake()
         {
             Pool = new ObjectPool<T>(
-                createFunc: () => Instantiate(_prefab),
+                createFunc: CreateObject,
                 actionOnGet: Spawn,
                 actionOnRelease: Despawn,
-                actionOnDestroy: (obj) => Destroy(obj.gameObject),
+                actionOnDestroy: DestroyObject,
                 collectionCheck: true,
                 defaultCapacity: _poolCapacity,
                 maxSize: _poolMaxSize
@@ -30,6 +35,19 @@ namespace Spawners
             return Pool.Get();
         }
 
+        private T CreateObject()
+        {
+            T obj = Instantiate(_prefab);
+            ObjectCreated?.Invoke();
+            return obj;
+        }
+
+        private void DestroyObject(T obj)
+        {
+            ObjectDestroyed?.Invoke(obj);
+            Destroy(obj.gameObject);
+        }
+
         protected void ReleaseToPool(T obj)
         {
             Pool.Release(obj);
@@ -37,11 +55,13 @@ namespace Spawners
 
         protected virtual void Despawn(T obj)
         {
+            ObjectDespawned?.Invoke();
             obj.gameObject.SetActive(false);
         }
 
         protected virtual void Spawn(T obj)
         {
+            ObjectSpawned?.Invoke();
             obj.gameObject.SetActive(true);
         }
     }
