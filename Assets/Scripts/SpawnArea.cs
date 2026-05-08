@@ -10,11 +10,24 @@ public class SpawnArea : MonoBehaviour
     private void Awake()
     {
         _collider = GetComponent<Collider>();
+
+        if (_collider == null)
+        {
+            Debug.LogError($"Collider not found on {gameObject.name}! Please add a Collider component.");
+            return;
+        }
+
         _collider.isTrigger = true;
     }
 
     public Vector3 GetRandomSpawnPoint()
     {
+        if (_collider == null)
+        {
+            Debug.LogError("Cannot get spawn point: Collider is null!");
+            return Vector3.zero;
+        }
+
         Bounds bounds = _collider.bounds;
 
         float y = bounds.max.y + _ySpawnOffset;

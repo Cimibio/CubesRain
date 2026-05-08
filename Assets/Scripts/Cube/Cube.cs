@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Detector), typeof(ColorChanger))]
+[RequireComponent(typeof(Detector), typeof(ColorChanger), typeof(LifeTimer))]
 public class Cube : MonoBehaviour
 {
     private ColorChanger _colorChanger;
     private Detector _detector;
+    private LifeTimer _lifeTimer;
     private float _lifetime;
-
-    private Coroutine _lifetimerCountdownCoroutine;
 
     public event Action<Cube> Expired;
 
@@ -17,40 +15,37 @@ public class Cube : MonoBehaviour
     {
         _colorChanger = GetComponent<ColorChanger>();
         _detector = GetComponent<Detector>();
+        _lifeTimer = GetComponent<LifeTimer>();
     }
 
     private void OnEnable()
     {
-        _detector.Collided += ActivateLifetimer;
+        _detector.Collided += ChangeColor;
+        _lifeTimer.Expired += Disapear;
     }
 
     private void OnDisable()
     {
-        _detector.Collided -= ActivateLifetimer;
+        _detector.Collided -= ChangeColor;
+        _lifeTimer.Expired -= Disapear;
     }
 
     public void Init(float lifetime)
     {
-        if (_lifetimerCountdownCoroutine != null)
-        {
-            StopCoroutine(_lifetimerCountdownCoroutine);
-            _lifetimerCountdownCoroutine = null;
-        }
-
         _lifetime = lifetime;
+        _lifeTimer.StopTimer();
         _detector.Init();
         _colorChanger.SetWhiteColor();
     }
 
-    private void ActivateLifetimer()
+    private void ChangeColor()
     {
         _colorChanger.SetRandomColor();
-        _lifetimerCountdownCoroutine = StartCoroutine(CountdownLifetime(_lifetime));
+        _lifeTimer.StartTimer(_lifetime);
     }
 
-    private IEnumerator CountdownLifetime(float delay)
+    private void Disapear()
     {
-        yield return new WaitForSeconds(delay);
         Expired?.Invoke(this);
     }
 }

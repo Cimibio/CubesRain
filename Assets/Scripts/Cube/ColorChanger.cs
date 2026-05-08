@@ -18,5 +18,10 @@ public class ColorChanger : MonoBehaviour
     public void SetWhiteColor()
     {
         _renderer.material.color = Color.white;
-    }    
+    }
+
+    public void SetBlackColor()
+    {
+        _renderer.material.color = Color.black;
+    }
 }
