@@ -38,7 +38,7 @@ public class TransparencyChanger : MonoBehaviour
         _transparencyCoroutine = StartCoroutine(AnimateTransparency(duration));
     }
 
-    public void StopTransparencyAnimation()
+    private void StopTransparencyAnimation()
     {
         if (_transparencyCoroutine != null)
         {
@@ -47,12 +47,12 @@ public class TransparencyChanger : MonoBehaviour
         }
     }
 
-    public void SetAlpha(float alpha)
+    private void SetAlpha(float alpha)
     {
         if (_material != null)
         {
             Color color = _material.color;
-            color.a = Mathf.Clamp01(alpha);
+            color.a = alpha;
             _material.color = color;
         }
     }
@@ -64,13 +64,14 @@ public class TransparencyChanger : MonoBehaviour
 
     private IEnumerator AnimateTransparency(float duration)
     {
-        float elapsedTime = 0f;
+        float currentAlpha = _startAlpha;
+        float targetAlpha = _endAlpha;
+        float speed = Mathf.Abs(_endAlpha - _startAlpha) / duration;
 
-        while (elapsedTime < duration)
+        while (Mathf.Abs(currentAlpha - targetAlpha) > 0)
         {
-            elapsedTime += Time.deltaTime;
-            float alpha = Mathf.Lerp(_startAlpha, _endAlpha, elapsedTime / duration);
-            SetAlpha(alpha);
+            currentAlpha = Mathf.MoveTowards(currentAlpha, targetAlpha, speed * Time.deltaTime);
+            SetAlpha(currentAlpha);
             yield return null;
         }
 
