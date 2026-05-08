@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 6973925648358617059}
   - component: {fileID: 5794043606241597237}
   - component: {fileID: 1238012746600211065}
+  - component: {fileID: 7136292261011869133}
+  - component: {fileID: 2779059237354690031}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -66,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: de9dde4d8a752664fab544a845fa9bc4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -145,9 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a9e98ac2726a114899bb6eee8b6cf64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _meshRenderer: {fileID: 7769219368877671787}
-  _startAlpha: 1
-  _endAlpha: 0
 --- !u!54 &1238012746600211065
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -175,3 +174,29 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &7136292261011869133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5069991002536049594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaff71be6ce092041a0e6be223eb498f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2779059237354690031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5069991002536049594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1af14dab6e89864fa94e01bb35d2e91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _startAlpha: 1
+  _endAlpha: 0
