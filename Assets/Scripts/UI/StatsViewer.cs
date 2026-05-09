@@ -11,31 +11,32 @@ public class StatsViewer : MonoBehaviour
     private void OnEnable()
     {
         if (_spawnerStats != null)
-            _spawnerStats.StatsChanged += UpdateDisplay;
+            _spawnerStats.StatsChanged += WriteStats;
     }
 
     private void OnDisable()
     {
         if (_spawnerStats != null)
-            _spawnerStats.StatsChanged -= UpdateDisplay;
+            _spawnerStats.StatsChanged -= WriteStats;
     }
 
     private void Start()
     {
-        UpdateDisplay();
+        WriteStats();
     }
 
-    private void UpdateDisplay()
+    private void WriteStats()
     {
-        if (_spawnerStats == null) return;
+        if (_spawnerStats == null) 
+            return;
 
         if (_totalSpawnedText != null)
-            _totalSpawnedText.text = $"Spawned: {_spawnerStats.TotalSpawned}";
+            _totalSpawnedText.text = $"{_spawnerStats.TotalSpawned}";
 
         if (_totalCreatedText != null)
-            _totalCreatedText.text = $"Created: {_spawnerStats.TotalCreated}";
+            _totalCreatedText.text = $"{_spawnerStats.TotalCreated}";
 
         if (_activeObjectsText != null)
-            _activeObjectsText.text = $"Active: {_spawnerStats.ActiveObjects}";
+            _activeObjectsText.text = $"{_spawnerStats.ActiveObjects}";
     }
 }

@@ -5,8 +5,8 @@ public class BombSpawner : Spawner<Bomb>
 {
     [SerializeField] private float _minBombLifetime = 2f;
     [SerializeField] private float _maxBombLifetime = 5f;
-    [SerializeField] private float _explosionRadius = 5f;
-    [SerializeField] private float _explosionForce = 10f;
+    [SerializeField] private float _explosionRadius = 10f;
+    [SerializeField] private float _explosionForce = 300f;
     [SerializeField] private CubeSpawner _cubeSpawner;
 
     private void Start()

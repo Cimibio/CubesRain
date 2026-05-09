@@ -3,50 +3,61 @@ using UnityEngine;
 
 public class SpawnerStats : MonoBehaviour
 {
-    [SerializeField] private MonoBehaviour _spawnerProvider;
+    [SerializeField] private GameObject _spawnerObject;
 
     private ISpawnerStatsProvider _spawner;
-    private int _totalSpawned;
-    private int _totalCreated;
-    private int _activeObjects;
 
-    public int TotalSpawned => _totalSpawned;
-    public int TotalCreated => _totalCreated;
-    public int ActiveObjects => _activeObjects;
+    public int TotalSpawned { get; private set; }
+    public int TotalCreated { get; private set; }
+    public int ActiveObjects { get; private set; }
 
     public event Action StatsChanged;
 
     private void Awake()
     {
-        if (_spawnerProvider is ISpawnerStatsProvider provider)
-            _spawner = provider;
-        else
-            _spawner = GetComponent<ISpawnerStatsProvider>();
+        if (_spawnerObject != null)        
+            _spawner = _spawnerObject.GetComponent<ISpawnerStatsProvider>();        
+
+        if (_spawner == null)
+            Debug.LogError($"[SpawnerStats] на {gameObject.name} не назначен провайдер статов!");
     }
 
     private void OnEnable()
     {
-        if (_spawner != null)
-        {
-            _spawner.ObjectCreated += OnObjectCreated;
-            _spawner.ObjectSpawned += OnObjectSpawned;
-            _spawner.ObjectDespawned += OnObjectDespawned;
-        }
+        if (_spawner == null) 
+            return;
+
+        _spawner.ObjectCreated += CountCreated;
+        _spawner.ObjectSpawned += CountSpawned;
+        _spawner.ObjectDespawned += CountDespawned;
     }
 
     private void OnDisable()
     {
-        if (_spawner != null)
-        {
-            _spawner.ObjectCreated -= OnObjectCreated;
-            _spawner.ObjectSpawned -= OnObjectSpawned;
-            _spawner.ObjectDespawned -= OnObjectDespawned;
-        }
+        if (_spawner == null) 
+            return;
+
+        _spawner.ObjectCreated -= CountCreated;
+        _spawner.ObjectSpawned -= CountSpawned;
+        _spawner.ObjectDespawned -= CountDespawned;
     }
 
-    private void OnObjectCreated() { /* ... */ }
-    private void OnObjectSpawned() { /* ... */ }
-    private void OnObjectDespawned() { /* ... */ }
+    private void CountCreated()
+    {
+        TotalCreated++;
+        StatsChanged?.Invoke();
+    }
 
-    public void Reset() { /* ... */ }
+    private void CountSpawned()
+    {
+        TotalSpawned++;
+        ActiveObjects++;
+        StatsChanged?.Invoke();
+    }
+
+    private void CountDespawned()
+    {
+        ActiveObjects--;
+        StatsChanged?.Invoke();
+    }
 }
